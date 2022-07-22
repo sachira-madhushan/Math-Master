@@ -31,6 +31,7 @@ public class Game : MonoBehaviour
     public Image _timeBar;
     void Start()
     {
+        Time.timeScale = 1;
         _mode = PlayerPrefs.GetInt("GameMode", 0);
         highScoreEasy   = PlayerPrefs.GetInt("EasyScore", 0);
         highScoreMedium = PlayerPrefs.GetInt("MediumScore", 1);
