@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using GoogleMobileAds.Api;
 public class Home : MonoBehaviour
 {
 
@@ -11,10 +12,11 @@ public class Home : MonoBehaviour
     private AudioSource _audioClip;
     public Sprite soundOn,soundOff;
     public int soundType;
-
+    public GameObject confirmDialog;
     private void Start()
     {
-        
+        confirmDialog.SetActive(false);
+        MobileAds.Initialize(initStatus => { });
         Time.timeScale = 1;
         _audioClip = GetComponent<AudioSource>();
         _image = soundButton.GetComponent<Image>();
@@ -31,6 +33,14 @@ public class Home : MonoBehaviour
         }
 
     }
+
+    private void Update()
+    {
+        if (Input.GetKey(KeyCode.Escape))
+        {
+            Exit();
+        }
+    }
     public void Play()
     {
         
@@ -39,7 +49,8 @@ public class Home : MonoBehaviour
 
     public void Exit()
     {
-        Application.Quit();
+        confirmDialog.SetActive(true);
+        
     }
 
     public void Rank()
@@ -63,5 +74,14 @@ public class Home : MonoBehaviour
             soundType = 1;
             _image.sprite = soundOn;
         }
+    }
+
+    public void ExitConfirmed()
+    {
+        Application.Quit();
+    }
+    public void ExitCanceled()
+    {
+        confirmDialog.SetActive(false);
     }
 }

@@ -4,6 +4,14 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 public class Mode : MonoBehaviour
 {
+
+    private void Update()
+    {
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            SceneManager.LoadScene("Home");
+        }
+    }
     public void Easy()
     {
         PlayerPrefs.SetInt("GameMode", 0);

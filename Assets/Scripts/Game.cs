@@ -4,8 +4,11 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using GoogleMobileAds.Api;
+
 public class Game : MonoBehaviour
 {
+    #region PrivateVariables
     public AudioSource _clip;
     [SerializeField]
     private TextMeshProUGUI _numberOne, _numberTwo, _oparator,_questionNumber,_finalScore;
@@ -18,19 +21,25 @@ public class Game : MonoBehaviour
 
     [SerializeField]
     private GameObject _gameOverMenu,star01,star02,star03;
-
     private int _mode,correctAnswers,wrongAnswers;
     int answer,Qnumber, highScoreEasy, highScoreMedium, highScoreHard;
     string oparatorChar,userAnswer;
     int num01;
     int num02;
     int oparator;
-    float time=1;
+    int time=100;
+    private bool isGameOver;
 
-
+    #endregion
+    public GameObject confirmDialog;
+    public GameObject AddUnitObject;
+    private InteratialAdd adScript;
     public Image _timeBar;
     void Start()
     {
+        confirmDialog.SetActive(false);
+        adScript =AddUnitObject.GetComponent<InteratialAdd>();
+        isGameOver = false;
         Time.timeScale = 1;
         _mode = PlayerPrefs.GetInt("GameMode", 0);
         highScoreEasy   = PlayerPrefs.GetInt("EasyScore", 0);
@@ -55,82 +64,97 @@ public class Game : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (time < 0.5)
+
+
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            confirmDialog.SetActive(true);
+        }
+
+        if (time < 50)
         {
             _timeBar.color = Color.red;
         }
-
-        if (time <0.01)
+        if (!isGameOver)
         {
-            _finalScore.text = correctAnswers.ToString()+"/"+Qnumber.ToString();
-            switch (_mode)
+            if (time == 0)
             {
-                case 0:
-                    if (highScoreEasy < correctAnswers)
-                    {
-                        PlayerPrefs.SetInt("EasyScore", correctAnswers);
-                        star01.SetActive(true);
-                        star02.SetActive(true);
-                        star03.SetActive(true);
+                _finalScore.text = correctAnswers.ToString() + "/" + Qnumber.ToString();
+                switch (_mode)
+                {
+                    case 0:
+                        if (highScoreEasy < correctAnswers)
+                        {
+                            PlayerPrefs.SetInt("EasyScore", correctAnswers);
+                            star01.SetActive(true);
+                            star02.SetActive(true);
+                            star03.SetActive(true);
 
-                    }
-                    else if ((highScoreEasy / 2) < correctAnswers)
-                    {
-                        star01.SetActive(true);
-                        star02.SetActive(true);
-                    }
-                    else
-                    {
-                        star01.SetActive(true);
-                    }
-                    break;
-                case 1:
-                    if (highScoreMedium < correctAnswers)
-                    {
-                        PlayerPrefs.SetInt("EasyMedium", correctAnswers);
-                        star01.SetActive(true);
-                        star02.SetActive(true);
-                        star03.SetActive(true);
+                        }
+                        else if ((highScoreEasy / 2) < correctAnswers)
+                        {
+                            star01.SetActive(true);
+                            star02.SetActive(true);
+                        }
+                        else
+                        {
+                            star01.SetActive(true);
+                        }
+                        break;
+                    case 1:
+                        if (highScoreMedium < correctAnswers)
+                        {
+                            PlayerPrefs.SetInt("EasyMedium", correctAnswers);
+                            star01.SetActive(true);
+                            star02.SetActive(true);
+                            star03.SetActive(true);
 
-                    }
-                    else if ((highScoreMedium / 2) < correctAnswers)
-                    {
-                        star01.SetActive(true);
-                        star02.SetActive(true);
-                    }
-                    else
-                    {
-                        star01.SetActive(true);
-                    }
-                    break;
-                case 2:
-                    if (highScoreHard < correctAnswers)
-                    {
-                        PlayerPrefs.SetInt("EasyHard", correctAnswers);
-                        star01.SetActive(true);
-                        star02.SetActive(true);
-                        star03.SetActive(true);
+                        }
+                        else if ((highScoreMedium / 2) < correctAnswers)
+                        {
+                            star01.SetActive(true);
+                            star02.SetActive(true);
+                        }
+                        else
+                        {
+                            star01.SetActive(true);
+                        }
+                        break;
+                    case 2:
+                        if (highScoreHard < correctAnswers)
+                        {
+                            PlayerPrefs.SetInt("EasyHard", correctAnswers);
+                            star01.SetActive(true);
+                            star02.SetActive(true);
+                            star03.SetActive(true);
 
-                    }
-                    else if ((highScoreHard / 2) < correctAnswers)
-                    {
-                        star01.SetActive(true);
-                        star02.SetActive(true);
-                    }
-                    else
-                    {
-                        star01.SetActive(true);
-                    }
-                    break;
+                        }
+                        else if ((highScoreHard / 2) < correctAnswers)
+                        {
+                            star01.SetActive(true);
+                            star02.SetActive(true);
+                        }
+                        else
+                        {
+                            star01.SetActive(true);
+                        }
+                        break;
+                }
+                //print("sacheera");
+                isGameOver = true;
+                Invoke("StopTime", 0.1f);
             }
-            _gameOverMenu.SetActive(true);
-            Invoke("StopTime", 0.1f);
         }
+
+
 
 
     }
     void StopTime()
     {
+        print("ssssssssssss");
+        adScript.ShowInterstitial();
+        _gameOverMenu.SetActive(true);
         Time.timeScale = 0;
     }
     void EasyLevel()
@@ -282,8 +306,12 @@ public class Game : MonoBehaviour
 
     void Timer()
     {
-        _timeBar.fillAmount = time;
-        time -= 0.02f;
+        if (time != 0)
+        {
+            _timeBar.fillAmount -= 0.02f;
+            time -= 2;
+        }
+        
     }
 
 
@@ -295,8 +323,15 @@ public class Game : MonoBehaviour
         
     }
 
-    public void Exit()
+
+    public void ConfirmCanceled()
+    {
+        confirmDialog.SetActive(false);
+    }
+    public void Confirmed()
     {
         SceneManager.LoadScene("Home");
+        confirmDialog.SetActive(false);
+
     }
 }
